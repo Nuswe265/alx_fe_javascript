@@ -10,8 +10,8 @@ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
 const lastQuote = sessionStorage.getItem('lastQuote');
 if (lastQuote) document.getElementById("quoteDisplay").textContent = lastQuote;
 
-// Function to display a random quote
-function displayRandomQuote() {
+// Function to show a random quote
+function showRandomQuote() {
     if (quotes.length === 0) {
         document.getElementById("quoteDisplay").textContent = "No quotes available!";
         return;
@@ -75,7 +75,7 @@ function filterQuotes() {
     const quoteDisplay = document.getElementById("quoteDisplay");
 
     if (selectedCategory === "all") {
-        displayRandomQuote(); // Changed to displayRandomQuote
+        showRandomQuote();
     } else {
         const filteredQuotes = quotes.filter(q => q.category === selectedCategory);
         if (filteredQuotes.length > 0) {
@@ -153,6 +153,6 @@ async function syncWithServer() {
 }
 
 // Attach event listeners
-document.getElementById("newQuote").addEventListener("click", displayRandomQuote); // Changed to displayRandomQuote
+document.getElementById("newQuote").addEventListener("click", showRandomQuote);
 document.getElementById("categoryFilter").addEventListener("change", filterQuotes);
 document.getElementById("importFile").addEventListener("change", importFromJsonFile);
