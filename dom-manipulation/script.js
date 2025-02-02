@@ -10,8 +10,8 @@ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
 const lastQuote = sessionStorage.getItem('lastQuote');
 if (lastQuote) document.getElementById("quoteDisplay").textContent = lastQuote;
 
-// Function to show a random quote
-function showRandomQuote() {
+// Function to display a random quote
+function displayRandomQuote() {
     if (quotes.length === 0) {
         document.getElementById("quoteDisplay").textContent = "No quotes available!";
         return;
@@ -44,10 +44,10 @@ function addQuote() {
 
     const newQuote = { text: quoteText, category: quoteCategory };
     quotes.push(newQuote);
-    
+
     saveQuotes();
     document.getElementById("quoteDisplay").textContent = `"${newQuote.text}" - (${newQuote.category})`;
-    
+
     document.getElementById("newQuoteText").value = "";
     document.getElementById("newQuoteCategory").value = "";
 
@@ -75,7 +75,7 @@ function filterQuotes() {
     const quoteDisplay = document.getElementById("quoteDisplay");
 
     if (selectedCategory === "all") {
-        showRandomQuote();
+        displayRandomQuote();
     } else {
         const filteredQuotes = quotes.filter(q => q.category === selectedCategory);
         if (filteredQuotes.length > 0) {
@@ -113,7 +113,7 @@ function exportToJsonFile() {
 // Import quotes from JSON file
 function importFromJsonFile(event) {
     const fileReader = new FileReader();
-    fileReader.onload = function(event) {
+    fileReader.onload = function (event) {
         try {
             const importedQuotes = JSON.parse(event.target.result);
             quotes.push(...importedQuotes);
@@ -126,17 +126,23 @@ function importFromJsonFile(event) {
     fileReader.readAsText(event.target.files[0]);
 }
 
-// Sync with a mock server and handle conflicts
-async function syncWithServer() {
+async function fetchQuotesFromServer() {
     try {
         const response = await fetch("https://jsonplaceholder.typicode.com/posts");
         const serverQuotes = await response.json();
-
-        // Take first 5 posts as mock quotes from the server
-        const newQuotes = serverQuotes.slice(0, 5).map(post => ({
+        return serverQuotes.slice(0, 5).map(post => ({
             text: post.title,
             category: "Server"
         }));
+    } catch (error) {
+        console.error("Error fetching quotes:", error);
+        return []; // Return an empty array to indicate failure
+    }
+}
+
+async function syncWithServer() {
+    try {
+        const newQuotes = await fetchQuotesFromServer(); // Call the new function
 
         // Merge new quotes while avoiding duplicates
         newQuotes.forEach(quote => {
@@ -152,7 +158,8 @@ async function syncWithServer() {
     }
 }
 
+
 // Attach event listeners
-document.getElementById("newQuote").addEventListener("click", showRandomQuote);
+document.getElementById("newQuote").addEventListener("click", displayRandomQuote);
 document.getElementById("categoryFilter").addEventListener("change", filterQuotes);
 document.getElementById("importFile").addEventListener("change", importFromJsonFile);
